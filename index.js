@@ -20,6 +20,21 @@ app.use(express.json())
 
 
 // Routes
+async function run() {
+     try {
+
+     } finally {
+
+     }
+}
+
+run().catch(console.log)
+
+app.get('/', (req, res) => {
+
+     res.send('hello from dentist server :)')
+
+})
 
 
 // Connection
