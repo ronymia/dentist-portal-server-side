@@ -20,12 +20,34 @@ const client = new MongoClient(uri);
 async function run() {
      try {
           const appointmentOptionCollection = client.db('dentist_portal').collection('appointmentOptions');
+          const bookingsCollection = client.db('dentist_portal').collection('bookings');
 
           app.get("/appointmentOptions", async (req, res) => {
                const query = {};
                const options = await appointmentOptionCollection.find(query).toArray();
                res.send(options);
           });
+
+          //insert patient booking
+          app.post("/bookings", async (req, res) => {
+               const booking = req.body;
+               // console.log(booking);
+               const query = {
+                    tratment: booking.treatmentName,
+                    email: booking.email,
+                    appointmentDate: booking.appointmentDate
+               }
+               // checking booked or not
+               const alreadyBooked = await bookingsCollection.find(query).toArray();
+               if (alreadyBooked.length) {
+                    const message = `You already have a booking on ${booking.appointmentDate} `;
+                    return res.send({ acknowledged: false, message })
+               }
+
+               // inserting bookings
+               const booked = await bookingsCollection.insertOne(booking);
+               return res.send(booked);
+          })
 
      } finally {
 
