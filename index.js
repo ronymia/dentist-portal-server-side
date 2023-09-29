@@ -33,12 +33,13 @@ async function run() {
                const booking = req.body;
                // console.log(booking);
                const query = {
-                    tratment: booking.treatmentName,
+                    appointmentDate: booking.appointmentDate,
+                    treatment: booking.treatment,
                     email: booking.email,
-                    appointmentDate: booking.appointmentDate
                }
                // checking booked or not
                const alreadyBooked = await bookingsCollection.find(query).toArray();
+               // console.log(alreadyBooked);
                if (alreadyBooked.length) {
                     const message = `You already have a booking on ${booking.appointmentDate} `;
                     return res.send({ acknowledged: false, message })
