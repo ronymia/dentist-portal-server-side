@@ -23,9 +23,23 @@ async function run() {
           const bookingsCollection = client.db('dentist_portal').collection('bookings');
 
           app.get("/appointmentOptions", async (req, res) => {
+               const date = req.query.date;
                const query = {};
-               const options = await appointmentOptionCollection.find(query).toArray();
-               res.send(options);
+               // getting all services
+               const services = await appointmentOptionCollection.find(query).toArray();
+
+               // getting all booking base on date 
+               const bookingQuery = { appointmentDate: date };
+               const alreadyBooked = await bookingsCollection.find(bookingQuery).toArray();
+               // console.log(alreadyBooked);
+               services.forEach(service => {
+                    const optionBooked = alreadyBooked.filter(booked => booked.treatment === service.name);
+                    const bookedslot = optionBooked.map(booked => booked.slot);
+                    const remainingSlots = service.slots.filter(slot => !bookedslot.includes(slot));
+                    service.slots = remainingSlots;
+               })
+
+               res.send(services);
           });
 
           //insert patient booking
