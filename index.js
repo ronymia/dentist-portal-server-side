@@ -47,7 +47,8 @@ async function run() {
                const email = req.query.email;
                const date = req.query.date;
                const query = {
-                    appointmentDate: date
+                    appointmentDate: date,
+                    email: email
                }
                const bookings = await bookingsCollection.find(query).toArray();
                res.send(bookings);
