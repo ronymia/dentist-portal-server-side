@@ -42,6 +42,17 @@ async function run() {
                res.send(services);
           });
 
+          // booking api base on patient
+          app.get("/bookings", async (req, res) => {
+               const email = req.query.email;
+               const date = req.query.date;
+               const query = {
+                    appointmentDate: date
+               }
+               const bookings = await bookingsCollection.find(query).toArray();
+               res.send(bookings);
+          })
+
           //insert patient booking
           app.post("/bookings", async (req, res) => {
                const booking = req.body;
