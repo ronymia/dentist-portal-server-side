@@ -44,8 +44,18 @@ async function run() {
           const appointmentOptionCollection = client.db('dentist_portal').collection('appointmentOptions');
           const bookingsCollection = client.db('dentist_portal').collection('bookings');
 
-          // jwt related
+          //middleware 
+          const verifyAdmin = async (req, res, next) => {
+               const email = req.decoded.email;
+               const query = { email: email };
+               const user = await userCollection.findOne(query);
+               if (user?.role !== 'admin') {
+                    return res.status(403).send({ error: true, message: "Forbidden access" })
+               }
+               next();
+          }
 
+          // jwt related
           app.post("/jwt", (req, res) => {
                const email = req.body;
                // create token
@@ -54,7 +64,7 @@ async function run() {
           })
 
           //user related apis
-          app.get("/users", async (req, res) => {
+          app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
                const users = await userCollection.find().toArray();
                res.send(users);
           })
