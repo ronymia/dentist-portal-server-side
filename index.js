@@ -55,6 +55,16 @@ async function run() {
                res.send(result);
           })
 
+          app.delete("/user/:id", async (req, res) => {
+               const id = req.params.id;
+               const filter = { _id: new ObjectId(id) };
+               const result = await userCollection.deleteOne(filter);
+               res.send({
+                    result,
+                    message: "succesfully delete"
+               })
+          })
+
           // appointment related apis
           app.get("/appointmentOptions", async (req, res) => {
                const date = req.query.date;
