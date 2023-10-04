@@ -19,9 +19,26 @@ const client = new MongoClient(uri);
 // Routes
 async function run() {
      try {
+          const userCollection = client.db('dentist_portal').collection('users');
           const appointmentOptionCollection = client.db('dentist_portal').collection('appointmentOptions');
           const bookingsCollection = client.db('dentist_portal').collection('bookings');
 
+          //user related apis
+          app.post("/users", async (req, res) => {
+               const user = req.body;
+               const query = { email: user.email };
+               const existUser = await userCollection.findOne(query);
+               if (existUser) {
+                    return res.send({
+                         message: "user alreafy exist"
+                    });
+               }
+               // new user
+               const result = await userCollection.insertOne(user);
+               return res.send(result);
+          })
+
+          // appointment related apis
           app.get("/appointmentOptions", async (req, res) => {
                const date = req.query.date;
                const query = {};
