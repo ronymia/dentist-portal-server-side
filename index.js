@@ -5,11 +5,31 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 
+const PORT = process.env.PORT || 5000;
+
 // Middleware Connections
 app.use(cors())
 app.use(express.json())
 
-const PORT = process.env.PORT || 5000;
+// token verify
+const verifyJWT = (req, res, next) => {
+     const authorization = req.headers.authorization;
+     if (!authorization) {
+          return res.status(401).send({ error: true, message: 'unauthorized access' })
+     }
+
+     //bearer token
+     const token = authorization.split(' ')[1];
+
+     jwt.verify(token, process.env.ACCES_TOKEN_SECRET, (error, decoded) => {
+          if (error) {
+               return res.status(401).send({ error: true, message: 'Invalid token' })
+          }
+          req.decoded = decoded;
+          next();
+     })
+}
+
 
 
 
@@ -28,6 +48,7 @@ async function run() {
 
           app.post("/jwt", (req, res) => {
                const email = req.body;
+               // create token
                const token = jwt.sign(email, process.env.ACCES_TOKEN_SECRET, { expiresIn: '1000000h' });
                res.send(token);
           })
@@ -96,9 +117,16 @@ async function run() {
           });
 
           // booking api base on patient
-          app.get("/bookings", async (req, res) => {
+          app.get("/bookings", verifyJWT, async (req, res) => {
                const email = req.query.email;
                const date = req.query.date;
+
+               //checking token
+               const decodedEmail = req.decoded.email;
+               if (email !== decodedEmail) {
+                    return res.status(403).send({ error: true, message: 'forbidden access' })
+               }
+
                const query = {
                     appointmentDate: date,
                     email: email
