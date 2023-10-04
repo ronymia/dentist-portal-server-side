@@ -24,6 +24,11 @@ async function run() {
           const bookingsCollection = client.db('dentist_portal').collection('bookings');
 
           //user related apis
+          app.get("/users", async (req, res) => {
+               const users = await userCollection.find().toArray();
+               res.send(users);
+          })
+
           app.post("/users", async (req, res) => {
                const user = req.body;
                const query = { email: user.email };
@@ -79,6 +84,7 @@ async function run() {
                     appointmentDate: booking.appointmentDate,
                     treatment: booking.treatment,
                     email: booking.email,
+                    slot: booking.slot
                }
                // checking booked or not
                const alreadyBooked = await bookingsCollection.find(query).toArray();
