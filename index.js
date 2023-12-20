@@ -20,10 +20,13 @@ const verifyJWT = (req, res, next) => {
 
      //bearer token
      const token = authorization.split(' ')[1];
-
      jwt.verify(token, process.env.ACCES_TOKEN_SECRET, (error, decoded) => {
           if (error) {
-               return res.status(401).send({ error: true, message: 'Invalid token' })
+               console.log(error);
+               return res.status(401).send({
+                    error: true,
+                    message: 'Invalid token'
+               })
           }
           req.decoded = decoded;
           next();
@@ -84,7 +87,7 @@ async function run() {
           })
 
           app.get("/users/admin/:email", verifyJWT, async (req, res) => {
-               const email = req.params;
+               const { email } = req.params;
                // CHECKING ADMIN
                if (req.decoded.email !== email) {
                     return res.send({ admin: false });
@@ -92,7 +95,7 @@ async function run() {
 
                const query = { email: email };
                const user = await userCollection.findOne(query);
-               const result = { admin: user?.role === 'admin' };
+               const result = { admin: user?.role === 'admin' }
                res.send(result);
           })
 
